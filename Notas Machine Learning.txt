@@ -1,0 +1,20 @@
+#INTRODUCCION
+aprendizaje supervisado: se le administran las variables para que la maquina aprenda a predecir un resultado
+	el modelo aprende a partir de las variables explicativas asociadas a la variable respuesta (y)
+	regresion lineal, vecino mas cercano, arbol de decision
+aprendizaje no supervisado: la maquina por si sola genera grupos dentro del set de datos
+	no hay variable respuesta (y) asociada
+	k-means, k-medians, sistemas de recomendacion
+aprendizaje de refuerzo: se aplica cuando hay pocos datos, funciona con simulaciones de ensayo y error, recompensa y castigo
+
+neurona <- algo que contiene un numero
+
+underfitting	<- subestmiacion del modelo, no es capaz de encontrar una representacion adecuada de los datos durante la clasificacion
+	se necesita aumentar la complejidad del modelo (mas datos, entender otra variable)
+	aumentar el numero de covariables 
+	eliminar el ruido de los datos
+	aumentar la etapa de entrenamiento
+overfitting	<- sobreestimacion del modelo
+	se necesita reducir la complejidad del modelo
+	utilizar metodos de regularizacion (Ridge o Lasso)
+	disminuir la etapa de entrenamiento

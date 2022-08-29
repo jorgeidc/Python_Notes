@@ -1,0 +1,16 @@
+# comentar
+[] = corchetes que reemplazan c()
+
+#ESTRUCTURAS DE CONTROL
+if condicion:
+	accion
+
+en R:
+if (condicion) {
+	accion
+}
+
+
+
+Google colab
+https://colab.research.google.com/
