@@ -1,0 +1,161 @@
+----------------
+MACHINE LEARNING
+----------------
+neurona <- algo que contiene un numero
+regularmente se entrena con el 70% de los datos y se prueba con el 30%
+
+#TIPOS DE APRENDIZAJE
+1. Aprendizaje Supervisado:
+	se le administran las variables para que la maquina aprenda a predecir un resultado
+	el modelo aprende a partir de las variables explicativas asociadas a la variable respuesta (y)
+	regresion lineal, vecino mas cercano, arbol de decision
+
+2. Aprendizaje No Supervisado: 
+	la maquina por si sola genera grupos dentro del set de datos
+	no hay variable respuesta (y) asociada
+	k-means, k-medians, sistemas de recomendacion
+
+3. Aprendizaje de Refuerzo: 
+	se aplica cuando hay pocos datos
+	funciona con simulaciones de ensayo y error
+	recompensa y castigo
+
+#FALENCIAS DEL MODELO
+1. Underfitting:
+	subajuste, alto sesgo y baja varianza
+	subestmiacion del modelo, no es capaz de encontrar una representacion adecuada de los datos durante la clasificacion
+	se necesita aumentar la complejidad del modelo (mas datos, entender otra variable)
+	pocos datos de entrenamiento
+	aumentar el numero de covariables 
+	eliminar el ruido de los datos
+	aumentar la etapa de entrenamiento
+
+2. Overfitting:
+	al entrenar demasiado o con datos raros, el modelo se ajusta a caracteristicas muy especificas de los datos de entrenamiento
+	sobreestimacion del modelo, los datos nuevos quedan mal clasificados ya que el modelo aprendio demasiado bien los datos de entrenamiento
+	se necesita reducir la complejidad del modelo
+	utilizar metodos de regularizacion (Ridge o Lasso)
+	disminuir la etapa de entrenamiento
+
+#PARTICIONES DE DATOS
+1. K-Fold Cross Validation:
+	consiste en dividir los datos en k subconjuntos de igual tamaño y repetir el procedimiento k veces tal que cada k subconjunto sea
+	el conjunto de prueba y los otros k-1 subconjuntos forman el conjunto de entrenamiento
+
+En R:
+Modelo de regresion lineal
+	library(caret)
+	train_control_cv <- trainControl(method = "cv", number = 10)
+	model_cv <- train(speed ~., data = cars, method = "lm",		<- method se puede cambiar a "glm"
+	trControl = train_control_cv)
+	model_cv$results									<- resultados resumidos
+	model_cv$resample									<- si las metricas son muy distintas se recomienda cambiar los datos
+
+Modelo de clasificacion
+	load("ENS_completa.RData")
+	ENS$diabetes <- as.factor(ENS$diabetes)
+	train_control_cv <- trainControl(method = "cv", number = 10)
+	model_cv <- train(diabetes ~., data = ENS, method = "glm",
+		trControl = train_control_cv)
+	model_cv$results
+	model_cv$resample
+
+En Python:
+Modelo de regresion lineal
+	from sklearn.model_selection import cross_validate
+	from sklearn.model_selection import KFold
+	from sklearn import linear_model
+	from sklearn import datasets
+	X, y = datasets.load_diabetes(return_X_y=True)
+	kf = KFold(n_splits=10)
+	lr = linear_model.LinearRegression()
+	lr.fit(X, y)
+	lr_cv = cross_validate(lr, X, y, cv=kf,				<- en cada iteracion se calcula el R2 y error cuadratico medio
+	scoring=('r2', 'neg_mean_squared_error'))
+	print("Metricas cross_validation", lr_cv['test_score'])
+
+Modelo de clasificacion
+	from sklearn.model_selection import cross_validate
+	from sklearn.model_selection import KFold
+	from sklearn.linear_model import LogisticRegression
+	from sklearn import datasets
+	cancer = datasets.load_breast_cancer()
+	X , y = cancer.data, cancer.target
+	kf = KFold(n_splits=10)
+	logic = LogisticRegression()
+	logic.fit(X, y)
+	logic_cv = cross_validate(logic, X, y, cv=kf, scoring = "accuracy")	<- para cada set de iteracion se calcula acurracy
+	print("Metricas cross_validation", logic_cv['test_score'])
+
+2. Leave one out Cross Validation:
+	en cada iteracion se utiliza una sola obs para los datos de prueba, dejando al resto como set entrenamiento
+	el modelo se ajusta utilizando n-1 obs de entrenamiento
+
+En R:
+Modelo de regresion lineal
+	train_control_lpocv <- trainControl(method = "LOOCV")
+	model_lpocv <- train(speed ~., data = cars, method = "lm",
+	trControl = train_control_lpocv)
+	model_lpocv$results
+
+Modelo de clasificacion
+	train_control_lpocv <- trainControl(method = "LOOCV")
+	model_lpocv <- train(diabetes ~., data = ENS, method = "glm",
+		trControl = train_control_lpocv)
+	model_lpocv$results
+
+En Python:
+Modelo de regresion lineal
+	from sklearn.model_selection import LeaveOneOut
+	X, y = datasets.load_diabetes(return_X_y=True)
+	loo = LeaveOneOut()
+	lr = linear_model.LinearRegression()
+	lr.fit(X, y)
+	lr_loo = cross_validate(lr, X, y, cv=loo, scoring=('neg_mean_squared_error'))
+	print("Media de cross_validation:", logic_loo['test_score'].mean())
+
+Modelo de clasificacion
+	from sklearn.model_selection import LeaveOneOut
+	X , y = cancer.data, cancer.target
+	loo = LeaveOneOut()
+	logic = LogisticRegression()
+	logic.fit(X, y)
+	logic_loo = cross_validate(logic, X, y, cv=loo, scoring = "accuracy")
+	print("Media de cross_validation:", logic_loo['test_score'].mean())
+
+#NAIVE BAYES O BAYES INGENUO
+es de tipo supervisado, se basa en el teorema de bayes para predecir las probabilidades de pertenecer a distintas clases
+asume independencia condicionales en las caracteristicas
+es util para conjuntos de datos muy grandes
+ventajas: aunque no es exacto en general toma buenas decisiones, tiene alta velocidad en grandes bases de datos
+desventajas: no le va bien cuando hay muchos datos y pocos predictores, dado el supuesto de independencia el modelo no reflejara como son los datos realmente
+
+Procedimiento:
+	1. Convertir el conjunto de datos en una tabla de frecuencia
+	2. Crear una tabla de probabilidad marginal para cada uno de los casos posibles
+	3. Usar Bayes para obtener la probabilidad posterior de cada clase
+	4. La clase con la probabilidad posterior mas alta es el resultado de la prediccion
+
+En R:
+	library(e1071)	<- modelo de Naive Bayes
+	id <- sample(1:nrow(iris), size = 0.7*nrow(iris))
+	iris_train <- iris[id,]
+	iris_test <- iris[-id,]
+	mod_nb <- naiveBayes(Species ~ ., data = iris_train)
+	pred_nb <- predict(mod_nb, iris_test)
+	table(pred_nb, iris_test$Species)
+
+En Python:
+	import numpy as np
+	import pandas as pd
+	from sklearn import datasets
+	data = datasets.load_iris()
+	X = pd.DataFrame(data['data'], columns=data['feature_names'])
+	y = data['target']
+	from sklearn.model_selection import train_test_split
+	X_train, X_test, y_train, y_test = train_test_split(X, y,
+	test_size = 0.3, random_state = 0)
+	from sklearn.naive_bayes import MultinomialNB
+	model=MultinomialNB(fit_prior=False).fit(X_train, y_train)		<- ajustamos el modelo
+	y_predicted = model.predict(X_test)		<- predicciones en el set de prueba
+	pd.crosstab(y_test, y_hat)	<- matriz de confusion
